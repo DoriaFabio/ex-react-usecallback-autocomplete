@@ -13,19 +13,18 @@ function debounce(callback, delay) {
 function App() {
   const [search, setSearch] = useState("");
   const [products, setProducts] = useState([]);
-
-  const apiUrl = `https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${search}`
+  const [selectedProduct, setSelectedProduct] = useState();
+  
   const fetchProducts = async (search) => {
     if (!search.trim()) {
       setProducts([]);
       return;
     }
+    const apiUrl = `https://boolean-spec-frontend.vercel.app/freetestapi/products?search=${search}`
     try {
       const res = await fetch(apiUrl);
       const data = await res.json();
       setProducts(data);
-      console.log("API");
-      
     } catch (err) {
       console.error(err);
     }
@@ -35,6 +34,7 @@ function App() {
 
   useEffect(() => {
     debounceFetchProducts(search);
+    console.log(products);
   }, [search]);
 
   return (
@@ -48,10 +48,27 @@ function App() {
         className="bg-amber-100 rounded-md text-black p-2 w-100 border-2 border-amber-950"
       />
       {products.length > 0 && (
-        <div className="bg-gray-300 rounded-md p-5 w-100 mt-1">
-          {products.map((p) => (
-            <p key={p.id}>{p.name}</p>
-          ))}
+        <div className="bg-gray-300 rounded-md w-100 mt-1">
+          <ul>
+            {products.map((p) => (
+              <li key={p.id} onClick={() => setSelectedProduct(p)} className="cursor-pointer hover:bg-gray-400 p-1 px-5 rounded-md">{p.name}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {selectedProduct && (
+        <div className="bg-white border border-black rounded-2xl p-4 mt-4 w-96">
+          <img src={selectedProduct.image} alt={selectedProduct.name} className="rounded-2xl" />
+          <h2 className="text-xl font-bold">{selectedProduct.name}</h2>
+          <p><strong>Brand:</strong> {selectedProduct.brand}</p>
+          <p><strong>Prezzo:</strong> {selectedProduct.price}</p>
+          <p><strong>Descrizione:</strong> {selectedProduct.description}</p>
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="mt-2 bg-red-500 text-white px-3 py-1 rounded-md"
+          >
+            Chiudi
+          </button>
         </div>
       )}
     </div>
